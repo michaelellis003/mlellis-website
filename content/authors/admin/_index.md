@@ -1,6 +1,5 @@
 ---
-bio: My research interests include distributed robotics, mobile computing and programmable
-  matter.
+bio: My research interests span Bayesian methods for time-series, spatial and spatio-temporal data.
 education:
   courses:
   - course: Master of Science in Statistics
