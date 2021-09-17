@@ -18,9 +18,6 @@ organizations:
   url: https://www.uark.edu/
 role: Graduate Student
 social:
-- icon: envelope
-  icon_pack: fas
-  link: 
 - icon: github
   icon_pack: fab
   link: https://github.com/michaelellis003
