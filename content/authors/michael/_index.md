@@ -32,8 +32,8 @@ title: Michael Ellis
 
 I am currently graduate student in the Department of Mathematics at the University of Arkansas. My main interest is in using probability theory and statistical methods to improve decision making. In particular, I am interested in Bayesian statistical methods for time-series, spatial and spatio-temporal data, time efficient full and approximate Bayesian inference for large datasets and Bayesian nonparametrics. I wrote my Master's thesis on {{< staticref "uploads/SI_for_HMM.pdf" "newtab" >}}Sequential Monte Carlo Methods for Hidden Markov Models{{< /staticref >}}.
 
-I was previously a founding data scientist member at Black Hills Corporation where I built large scale Bayesian/probabilistic forecasting tools.
+I was previously a Data Scientist at Black Hills Corporation where I built large scale Bayesian/probabilistic forecasting tools.
 
-You can contact me by email at [michaelellis003@gmail.com](mailto:michaelellis003@gmail.com)
+You can email at [michaelellis003@gmail.com](mailto:michaelellis003@gmail.com)
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resumé{{< /staticref >}}.
