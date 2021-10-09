@@ -36,4 +36,4 @@ I was previously a Data Scientist at Black Hills Corporation where I built large
 
 You can email at [michaelellis003@gmail.com](mailto:michaelellis003@gmail.com)
 
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}résumé{{< /staticref >}}.
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}.
