@@ -1,5 +1,5 @@
 ---
-bio: My interests include Bayesian statistical methods for time-series, spatial and spatio-temporal data, Bayesian nonparametrics, probability theory and mathematics and statistics education.
+bio: I am interested in using probability theory and statistical methods to improve decision making.
 education:
   courses:
   - course: Master of Science in Statistics
@@ -9,7 +9,7 @@ education:
     institution: University of Arkansas
     year: 2016
 email: ""
-highlight_name: true
+highlight_name: TRUE
 interests:
 - Decision Theory
 - Bayesian statistical methods for time-series, spatial and spatio-temporal data
