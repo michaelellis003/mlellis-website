@@ -34,6 +34,6 @@ I am currently graduate student in the Department of Mathematics at the Universi
 
 I was previously a Data Scientist at Black Hills Corporation where I built large scale Bayesian/probabilistic forecasting tools.
 
-You can email at [michaelellis003@gmail.com](mailto:michaelellis003@gmail.com)
+You can email at [michael@mlellis.com](mailto:michael@mlellis.com)
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}.
