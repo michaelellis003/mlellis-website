@@ -1,0 +1,43 @@
+---
+title: Multivariate Stochastic Volatility Models
+author: Michael Ellis
+date: '2021-10-29'
+output:
+  html_document:
+    mathjax: local
+    self_contained: false
+slug: multivariate-stochastic-volatility-models
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-10-29T17:04:51-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+### Dynamic Linear Models for Time Series Data
+As the name suggests dynamic linear models (DLMs) are simply an extension of the standard multiple linear regression where the coefficients and more generally the error term are allowed to vary through time. Recall the standard multiple linear regression model,
+\begin{align*}
+y_i = x_i \beta + \epsilon_i \quad \quad \epsilon_i \sim N(0, \sigma^2).
+\end{align*}
+In this model the coefficients, $\beta$, are assumed to be fixed in time. Now imagine that we have sequential data and we want to update our linear model each we observe a new data point $y_t$ at time $t$. To this end, we can extend the standard fixed linear model by allowing the coefficients and possibly the distribution of the error term, $\epsilon_i$, to vary through time. It is most common but not necessary to assume that the coefficients evolve in time according to discrete a random walk. Here we switch to the common notation for DLMs. Essentially, $x_i$ will become $F_t$, $\beta$ will become $\theta_t$, and $\epsilon_i$ will become $\nu_t$ to account for the possibility of them changing through time. Formally, a DLM can be stated as
+
+\begin{alignat*}{2}
+y_t &= F_t \theta_t + \nu_t \quad \quad &\nu_t& \sim N(0, \sigma^2_{y_t}) \\
+\theta_t &= G_t \theta_{t-1} + \omega_t \quad \quad &\omega_t& \sim N(0, \sigma^2_{\theta_t})
+\end{alignat*}
+
+where $F_t$ is the known $p \times 1$ vector of constants or regressors, $\theta_t$ is the $p \times 1$ state vector or regression coefficients, and $G_t$ is the $p \times p$ state evolution matrix that determines how $\theta_{t-1}$ evolves to $\theta_t$. I like to think of the state evolution equation, $\theta_t = G_t \theta_{t-1} + \omega_t$, as a latent stochastic process that “generates” the observations, $y_t$. That is, the observations are a noisy measurement of this latent stochastic process. One reason DLMs are nice is that they are very general. They can be used to model stationary or non-stationary time series data and the traditional ARMA models can be viewed as a special case of DLMs.
+
+#### Local Level Model
+The simplest example of a univariate DLM is known as the local level model or the random walk plus noise model. The local level model has, for each time $t$, a local level, denoted $\mu_t$, that is analogous to the intercept in the standard fixed linear model. In the local level model the local level is assumed to evolve in time according to a discrete random walk. Hence, the random walk plus noise name. We can write the local level model as
+\begin{alignat*}{2}
+y_t &= \mu_t + \nu_t \quad \quad &\nu_t& \sim N(0, \sigma^2_{y}) \\
+u_t &= u_{t-1} + \omega_t \quad \quad &\omega_t& \sim N(0, \sigma^2_{\mu}).
+\end{alignat*}

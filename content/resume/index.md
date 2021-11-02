@@ -1,6 +1,6 @@
 ---
 summary: More about my work experience
-title: "Resumé"
+title: "Resume"
 type: widget_page
 active = true:
 ---
