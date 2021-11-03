@@ -1,18 +1,14 @@
 ---
 title: Multivariate Stochastic Volatility Models
 author: Michael Ellis
-date: '2021-10-29'
-output:
-  html_document:
-    mathjax: local
-    self_contained: false
+date: '2021-11-02'
 slug: multivariate-stochastic-volatility-models
 categories: []
 tags: []
 subtitle: ''
 summary: ''
 authors: []
-lastmod: '2021-10-29T17:04:51-05:00'
+lastmod: '2021-11-02T17:28:09-05:00'
 featured: no
 image:
   caption: ''
@@ -26,7 +22,7 @@ As the name suggests dynamic linear models (DLMs) are simply an extension of the
 \begin{align*}
 y_i = x_i \beta + \epsilon_i \quad \quad \epsilon_i \sim N(0, \sigma^2).
 \end{align*}
-In this model the coefficients, `\(\beta\)`, are assumed to be fixed in time. Now imagine that we have sequential data and we want to update our linear model each we observe a new data point `\(y_t\)` at time `\(t\)`. To this end, we can extend the standard fixed linear model by allowing the coefficients and possibly the distribution of the error term, `\(\epsilon_i\)`, to vary through time. It is most common but not necessary to assume that the coefficients evolve in time according to discrete a random walk. Here we switch to the common notation for DLMs. Essentially, `\(x_i\)` will become `\(F_t\)`, `\(\beta\)` will become `\(\theta_t\)`, and `\(\epsilon_i\)` will become `\(\nu_t\)` to account for the possibility of them changing through time. Formally, a DLM can be stated as
+In this model the coefficients, `$\beta$`, are assumed to be fixed in time. Now imagine that we have sequential data and we want to update our linear model each we observe a new data point `\(y_t\)` at time `\(t\)`. To this end, we can extend the standard fixed linear model by allowing the coefficients and possibly the distribution of the error term, `\(\epsilon_i\)`, to vary through time. It is most common but not necessary to assume that the coefficients evolve in time according to discrete a random walk. Here we switch to the common notation for DLMs. Essentially, `\(x_i\)` will become `\(F_t\)`, `\(\beta\)` will become `\(\theta_t\)`, and `\(\epsilon_i\)` will become `\(\nu_t\)` to account for the possibility of them changing through time. Formally, a DLM can be stated as
 
 \begin{alignat*}{2}
 y_t &= F_t \theta_t + \nu_t \quad \quad &\nu_t& \sim N(0, \sigma^2_{y_t}) \\
@@ -41,3 +37,4 @@ The simplest example of a univariate DLM is known as the local level model or th
 y_t &= \mu_t + \nu_t \quad \quad &\nu_t& \sim N(0, \sigma^2_{y}) \\
 u_t &= u_{t-1} + \omega_t \quad \quad &\omega_t& \sim N(0, \sigma^2_{\mu}).
 \end{alignat*}
+
