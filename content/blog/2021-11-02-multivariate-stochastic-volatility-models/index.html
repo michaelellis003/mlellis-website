@@ -1,0 +1,43 @@
+---
+title: Multivariate Stochastic Volatility Models
+author: Michael Ellis
+date: '2021-11-02'
+slug: multivariate-stochastic-volatility-models
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-11-02T17:28:09-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="dynamic-linear-models-for-time-series-data" class="section level3">
+<h3>Dynamic Linear Models for Time Series Data</h3>
+<p>As the name suggests dynamic linear models (DLMs) are simply an extension of the standard multiple linear regression where the coefficients and more generally the error term are allowed to vary through time. Recall the standard multiple linear regression model,
+<span class="math display">\[\begin{align*}
+y_i = x_i \beta + \epsilon_i \quad \quad \epsilon_i \sim N(0, \sigma^2).
+\end{align*}\]</span>
+In this model the coefficients, <span class="math inline">\(\beta\)</span>, are assumed to be fixed in time. Now imagine that we have sequential data and we want to update our linear model each we observe a new data point <span class="math inline">\(y_t\)</span> at time <span class="math inline">\(t\)</span>. To this end, we can extend the standard fixed linear model by allowing the coefficients and possibly the distribution of the error term, <span class="math inline">\(\epsilon_i\)</span>, to vary through time. It is most common but not necessary to assume that the coefficients evolve in time according to discrete a random walk. Here we switch to the common notation for DLMs. Essentially, <span class="math inline">\(x_i\)</span> will become <span class="math inline">\(F_t\)</span>, <span class="math inline">\(\beta\)</span> will become <span class="math inline">\(\theta_t\)</span>, and <span class="math inline">\(\epsilon_i\)</span> will become <span class="math inline">\(\nu_t\)</span> to account for the possibility of them changing through time. Formally, a DLM can be stated as</p>
+<p><span class="math display">\[\begin{alignat*}{2}
+y_t &amp;= F_t \theta_t + \nu_t \quad \quad &amp;\nu_t&amp; \sim N(0, \sigma^2_{y_t}) \\
+\theta_t &amp;= G_t \theta_{t-1} + \omega_t \quad \quad &amp;\omega_t&amp; \sim N(0, \sigma^2_{\theta_t})
+\end{alignat*}\]</span></p>
+<p>where <span class="math inline">\(F_t\)</span> is the known <span class="math inline">\(p \times 1\)</span> vector of constants or regressors, <span class="math inline">\(\theta_t\)</span> is the <span class="math inline">\(p \times 1\)</span> state vector or regression coefficients, and <span class="math inline">\(G_t\)</span> is the <span class="math inline">\(p \times p\)</span> state evolution matrix that determines how <span class="math inline">\(\theta_{t-1}\)</span> evolves to <span class="math inline">\(\theta_t\)</span>. I like to think of the state evolution equation, <span class="math inline">\(\theta_t = G_t \theta_{t-1} + \omega_t\)</span>, as a latent stochastic process that “generates” the observations, <span class="math inline">\(y_t\)</span>. That is, the observations are a noisy measurement of this latent stochastic process. One reason DLMs are nice is that they are very general. They can be used to model stationary or non-stationary time series data and the traditional ARMA models can be viewed as a special case of DLMs.</p>
+<div id="local-level-model" class="section level4">
+<h4>Local Level Model</h4>
+<p>The simplest example of a univariate DLM is known as the local level model or the random walk plus noise model. The local level model has, for each time <span class="math inline">\(t\)</span>, a local level, denoted <span class="math inline">\(\mu_t\)</span>, that is analogous to the intercept in the standard fixed linear model. In the local level model the local level is assumed to evolve in time according to a discrete random walk. Hence, the random walk plus noise name. We can write the local level model as
+<span class="math display">\[\begin{alignat*}{2}
+y_t &amp;= \mu_t + \nu_t \quad \quad &amp;\nu_t&amp; \sim N(0, \sigma^2_{y}) \\
+u_t &amp;= u_{t-1} + \omega_t \quad \quad &amp;\omega_t&amp; \sim N(0, \sigma^2_{\mu}).
+\end{alignat*}\]</span></p>
+</div>
+</div>
