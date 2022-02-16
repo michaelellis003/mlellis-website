@@ -1,0 +1,91 @@
+---
+title: "An Overview of Variational Inference"
+author: "Michael Ellis"
+date: "2022-02-16"
+output: html_document
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{!htb}
+  - \usepackage{algorithm}
+  - \usepackage{algpseudocode}
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="bayesian-inference" class="section level3">
+<h3>Bayesian Inference</h3>
+<p>A common goal of Bayesian statistical inference is to make probabilistic statements about unknown parameters or unobserved data. This is done by first specifying a joint probability distribution of all observed and unobserved quantities. This is often called the “full probability model” and denoted by <span class="math inline">\(p(\theta, y)\)</span>, where <span class="math inline">\(\theta\)</span> are the unknown parameters and <span class="math inline">\(y\)</span> is the observed data. Probability theory tell us that this distribution can be separated into two parts, <span class="math inline">\(p(\theta, y) = p(y \mid \theta) p(\theta)\)</span>, where <span class="math inline">\(p(y \mid \theta)\)</span> is referred to as the data distribution and <span class="math inline">\(p(\theta)\)</span> is referred to as the prior distribution of <span class="math inline">\(\theta\)</span>. The full probability model can then be used to calculate the posterior density, <span class="math inline">\(p(\theta \mid y)\)</span>. If we are also interested in making probabilistic statements about unobserved quantities, commonly denoted by <span class="math inline">\(\tilde{y}\)</span>, then we will also want to calculate the posterior predictive density, <span class="math inline">\(p(\tilde{y} \mid y)\)</span>. These posterior densities are what allow us to make probabilistic statements about <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\tilde{y}\)</span>.</p>
+<p>In theory, we can calculate the posterior density of <span class="math inline">\(\theta\)</span> given the observed data <span class="math inline">\(y\)</span> using Bayes' rule,
+<span class="math display">\[\begin{align}
+    p(\theta \mid y) = \frac{p(\theta, y)}{p(y)} = \frac{p(y \mid \theta)p(\theta)}{p(y)}.
+\end{align}\]</span>
+In practice, this turns out to be a difficult problem due to the fact that the <span class="math inline">\(p(y)\)</span> term in the above formula must be calculated using integration,
+<span class="math display">\[\begin{align}
+    p(y) = \int p(y \mid \theta)p(\theta) \; d{\theta},
+\end{align}\]</span>
+and it is common for this integral to either not have a closed form solution or be intractable due to <span class="math inline">\(\theta\)</span> being high dimensional. The same problem arises when calculating the posterior posterior predictive density,
+<span class="math display">\[\begin{align}
+    p(\tilde{y} \mid y) &amp;= \int p(\tilde{y}, \theta \mid y) \; d\theta \\
+    &amp;= \int p(\tilde{y} \mid \theta, y) p(\theta \mid y)  \; d\theta \\
+    &amp;= \int p(\tilde{y} \mid \theta) p(\theta \mid y)  \; d\theta.
+\end{align}\]</span>
+A wide variety of numerical integration techniques have been developed to overcome this problem. In recent history, Monte Carlo methods (especially Markov chain Monte Carlo – MCMC) have become the most common approach. While MCMC methods have been widely successful they can still be notoriously slow. As a consequence other approaches that have better computational speed, such as variational approximations, have been developed.</p>
+</div>
+<div id="variational-inference" class="section level3">
+<h3>Variational Inference</h3>
+<p>Variational inference is an alternative approach where we search a family of approximate densities, <span class="math inline">\(\mathcal{Q}\)</span>, to find a density that is “closest” to the target posterior density, <span class="math inline">\(p(\theta \mid y)\)</span>. Closest is usually defined as minimizing the Kullback-Leibler (KL) divergence. Let <span class="math inline">\(q\)</span> denote an approximate density from the family <span class="math inline">\(\mathcal{Q}\)</span> then the Kullback-Leibler divergence from <span class="math inline">\(p\)</span> to <span class="math inline">\(q\)</span> is given by
+<span class="math display">\[\begin{align}
+    \text{KL}(q \mid \mid p) = - E_q \Big{(} \log \Big{(} \frac{p(\theta \mid y)}{q(\theta)} \Big{)} \Big{)}.
+\end{align}\]</span></p>
+<div id="evidence-lower-bound-elbo" class="section level4">
+<h4>Evidence Lower Bound (ELBO)</h4>
+<p>The “optimal” approximate posterior density is the solution of the optimization problem</p>
+<p><span class="math display">\[\begin{align}
+    q^{*}(\theta) = \underset{q(\theta) \in \mathcal{Q}}{\text{arg min}} \; \text{KL} (q \mid \mid p).
+\end{align}\]</span>
+However, notice the posterior density <span class="math inline">\(p(\theta \mid y)\)</span> that is difficult to calculate because we need to calculate <span class="math inline">\(p(y)\)</span> using integration is in the equation from the KL divergence. It turns out we can rewrite the KL divergence in the following way,</p>
+<p><span class="math display">\[\begin{align}
+    \text{KL}(q \mid \mid p) 
+    &amp;= - E_q \Big{[} \log \Big{(} \frac{p(\theta \mid y)}{q(\theta)} \Big{)} \Big{]} \\
+    &amp;= E_q[\log q(\theta)] - E_q[\log p(\theta \mid y)] \\
+    &amp;= E_q[\log q(\theta)] - E_q \Big{[}\log \frac{p(\theta, y)}{p(y)} \Big{]} \\
+    &amp;= E_q[\log q(\theta)] - E_q [\log p(\theta, y)] + E_q [\log p(y)] \\
+    &amp;= E_q[\log q(\theta)] - E_q [\log p(\theta, y)] + \log p(y).
+\end{align}\]</span></p>
+<p>It is clear now that <span class="math inline">\(\log p(y)\)</span> is a constant and therefore can be dropped from the function we need to optimize. Dropping the <span class="math inline">\(\log p(y)\)</span> component and multiplying by -1 gives the Evidence Lower BOund or ELBO,</p>
+<p><span class="math display">\[\begin{align}
+    \text{ELBO}(q) = E_q [\log p(\theta, y)] - E_q[\log q(\theta)].
+\end{align}\]</span></p>
+<p>Maximizing the ELBO is equivalent to minimizing the KL divergence.</p>
+</div>
+<div id="the-mean-field-variational-family" class="section level4">
+<h4>The Mean-Field Variational Family</h4>
+<p>Now that the optimization problem is defined the next step is to define a set of possible densities to search over. As before we denote the set of approximate densities to search over by <span class="math inline">\(\mathcal{Q}\)</span>. One common way to define this set of densities is known as the mean-field variational family where the parameters are assumed to be independent. That is,
+<span class="math display">\[\begin{align}
+    q(\theta \mid \phi) = \prod_{i=1}^{m} q_i (\theta_i \mid \phi_i)
+\end{align}\]</span>
+where each <span class="math inline">\(q_j\)</span> is a density, with hyperparameters <span class="math inline">\(\phi_i\)</span>, that is appropriate for the corresponding parameter. For example, if there is a single unknown parameter <span class="math inline">\(\theta\)</span> is a mean then we can select <span class="math inline">\(q\)</span> to be a normal distribution with mean <span class="math inline">\(\mu_{\theta}\)</span> and variance <span class="math inline">\(\sigma^2_{\theta}\)</span>.</p>
+</div>
+<div id="coordinate-ascent-mean-field-variational-inference" class="section level4">
+<h4>Coordinate Ascent Mean-Field Variational Inference</h4>
+<p>Now that the optimization problem is specified the next step is to develop an algorithm to solve the optimization problem. A common approach is coordinate ascent variational inference (CAVI). Assume <span class="math inline">\(q(\theta) = \prod_{i=1}^{m} q_i (\theta_i)\)</span> and define <span class="math inline">\(q_{-i}(\theta_{-i}) = \prod_{j \ne i} q_j (\theta_j)\)</span> then CAVI follows from the observation that</p>
+<p><span class="math display">\[\begin{align}
+    \text{ELBO}(q) 
+    &amp;= E_q \Big{[} \log \Big{(} \frac{p(\theta, y)}{q(\theta)} \Big{)} \Big{]} \\
+    &amp;=  \int \log \Big{(} \frac{p(\theta, y)}{q(\theta)} \Big{)} q(\theta) \; d \theta \\
+    &amp;= \int \log \Big{(} \frac{p(\theta, y)}{ \prod_{i=1}^m q_i(\theta_i)} \Big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
+    &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
+    &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
+    &amp;= \int q_{i}(\theta_i) \Big{[} \int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
+    &amp;= \int q_{i}(\theta_i) E_{q_{-i}} [\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
+     &amp;= \int q_{i}(\theta_i) \frac{E_{q_{-i}} [\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
+     &amp;= \int q_{i}(\theta_i) \log \frac{ \tilde{p}(\theta_i, y) }{q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
+\end{align}\]</span></p>
+<p>where, <span class="math inline">\(\tilde{p}(\theta_i, y) = \text{exp} \{ E_{q_{-i}} [\log p(\theta, y)] \}\)</span>. Notice, the last term is constant with respect to <span class="math inline">\(\theta_i\)</span> since it is a function of only <span class="math inline">\(\theta_{-i}\)</span> and the first term is the negative of the Kullback-Leibler divergence of <span class="math inline">\(q_i\)</span> with respect to <span class="math inline">\(\tilde{p}(\theta_i, y)\)</span>. Therefore, for each <span class="math inline">\(q_i(\theta_i)\)</span> conditional on <span class="math inline">\(q_{-i}(\theta_{-i})\)</span>,
+<span class="math display">\[\begin{align}
+    \text{ELBO}(q)  = - \text{KL}(q_i \mid \tilde{p}(\theta_i, y)) + \text{constant}.
+\end{align}\]</span>
+is maximized when <span class="math inline">\(q_i(\theta_i) \equiv \frac{\tilde{p}(\theta_i, y)}{\int \tilde{p}(\theta_i, y) \; d \theta_i} = \tilde{p}(\theta_i \mid y)\)</span>. It follows CAVI is simply iteratively updating <span class="math inline">\(q_i(\theta_i) = \tilde{p}(\theta_i \mid y)\)</span>. If conjugate priors are used for the hyperparameters, <span class="math inline">\(\phi\)</span>, then each <span class="math inline">\(q_i(\theta_i)\)</span> is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, <span class="math inline">\(\phi_i\)</span> for each corresponding <span class="math inline">\(q_i(\theta_i)\)</span>.</p>
+</div>
+</div>
