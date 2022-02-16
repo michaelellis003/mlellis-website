@@ -77,15 +77,23 @@ where each <span class="math inline">\(q_j\)</span> is a density, with hyperpara
     &amp;= \int \log \Big{(} \frac{p(\theta, y)}{ \prod_{i=1}^m q_i(\theta_i)} \Big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
-    &amp;= \int q_{i}(\theta_i) \Big{[} \int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-    &amp;= \int q_{i}(\theta_i) E_{q_{-i}} [\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-     &amp;= \int q_{i}(\theta_i) \frac{E_{q_{-i}} [\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-     &amp;= \int q_{i}(\theta_i) \log \frac{ \tilde{p}(\theta_i, y) }{q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-\end{align}\]</span></p>
-<p>where, <span class="math inline">\(\tilde{p}(\theta_i, y) = \text{exp} \{ E_{q_{-i}} [\log p(\theta, y)] \}\)</span>. Notice, the last term is constant with respect to <span class="math inline">\(\theta_i\)</span> since it is a function of only <span class="math inline">\(\theta_{-i}\)</span> and the first term is the negative of the Kullback-Leibler divergence of <span class="math inline">\(q_i\)</span> with respect to <span class="math inline">\(\tilde{p}(\theta_i, y)\)</span>. Therefore, for each <span class="math inline">\(q_i(\theta_i)\)</span> conditional on <span class="math inline">\(q_{-i}(\theta_{-i})\)</span>,
-<span class="math display">\[\begin{align}
-    \text{ELBO}(q)  = - \text{KL}(q_i \mid \tilde{p}(\theta_i, y)) + \text{constant}.
+    &amp;= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-1}}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
+    &amp;= \int q_{i}(\theta_i) E_{q_{-1}}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
+    &amp;= \int q_{i}(\theta_i) \frac{E_{q_{-1}}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
+    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-1}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
 \end{align}\]</span>
-is maximized when <span class="math inline">\(q_i(\theta_i) \equiv \frac{\tilde{p}(\theta_i, y)}{\int \tilde{p}(\theta_i, y) \; d \theta_i} = \tilde{p}(\theta_i \mid y)\)</span>. It follows CAVI is simply iteratively updating <span class="math inline">\(q_i(\theta_i) = \tilde{p}(\theta_i \mid y)\)</span>. If conjugate priors are used for the hyperparameters, <span class="math inline">\(\phi\)</span>, then each <span class="math inline">\(q_i(\theta_i)\)</span> is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, <span class="math inline">\(\phi_i\)</span> for each corresponding <span class="math inline">\(q_i(\theta_i)\)</span>.</p>
+The <span class="math inline">\(\text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \}\)</span> term can be considered as an unnormalized density of <span class="math inline">\(\theta_i\)</span>. Then the normalized density if given by
+<span class="math display">\[\begin{align}
+    \log \tilde{p}(\theta_i) 
+    &amp;=  E_{q_{-1}}[\log p(\theta, y)] + \int \text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \} \; d\theta_i \\
+    &amp;= E_{q_{-1}}[\log p(\theta, y)] + \text{constant}.
+\end{align}\]</span>
+Therefore, it follows that,
+<span class="math display">\[\begin{align}
+    \text{ELBO}(q)  
+    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\tilde{p}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
+    &amp;= - \text{KL} (q_i \mid \tilde{p}) + \text{constant}.
+\end{align}\]</span>
+Which is maximized when <span class="math inline">\(q_i(\theta_i) \equiv \tilde{p}(\theta_i)\)</span>. It follows that CAVI is simply iteratively updating <span class="math inline">\(q_i(\theta_i) = \tilde{p}(\theta_i)\)</span>. If conjugate priors are used for the hyperparameters, <span class="math inline">\(\phi\)</span>, then each <span class="math inline">\(q_i(\theta_i)\)</span> is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, <span class="math inline">\(\phi_i\)</span> for each <span class="math inline">\(q_i(\theta_i)\)</span>.</p>
 </div>
 </div>

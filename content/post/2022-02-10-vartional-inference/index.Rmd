@@ -86,15 +86,22 @@ Now that the optimization problem is specified the next step is to develop an al
     &= \int \log \Big{(} \frac{p(\theta, y)}{ \prod_{i=1}^m q_i(\theta_i)} \Big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
-    &= \int q_{i}(\theta_i) \Big{[} \int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-    &= \int q_{i}(\theta_i) E_{q_{-i}} [\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-     &= \int q_{i}(\theta_i) \frac{E_{q_{-i}} [\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-     &= \int q_{i}(\theta_i) \log \frac{ \tilde{p}(\theta_i, y) }{q_i (\theta_i)} \; d \theta_i - \int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i} \\
-\end{align} 
-
-where, $\tilde{p}(\theta_i, y) = \text{exp} \{ E_{q_{-i}} [\log p(\theta, y)] \}$. Notice, the last term is constant with respect to $\theta_i$ since it is a function of only $\theta_{-i}$ and the first term is the negative of the Kullback-Leibler divergence of $q_i$ with respect to $\tilde{p}(\theta_i, y)$. Therefore, for each $q_i(\theta_i)$ conditional on $q_{-i}(\theta_{-i})$,
-\begin{align}
-    \text{ELBO}(q)  = - \text{KL}(q_i \mid \tilde{p}(\theta_i, y)) + \text{constant}.
+    &= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-1}}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
+    &= \int q_{i}(\theta_i) E_{q_{-1}}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \frac{E_{q_{-1}}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-1}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
 \end{align}
-is maximized when $q_i(\theta_i) \equiv \frac{\tilde{p}(\theta_i, y)}{\int \tilde{p}(\theta_i, y) \; d \theta_i} = \tilde{p}(\theta_i \mid y)$. It follows CAVI is simply iteratively updating $q_i(\theta_i) = \tilde{p}(\theta_i \mid y)$. If conjugate priors are used for the hyperparameters, $\phi$, then each $q_i(\theta_i)$ is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, $\phi_i$ for each corresponding $q_i(\theta_i)$.
+The $\text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \}$ term can be considered as an unnormalized density of $\theta_i$. Then the normalized density if given by
+\begin{align}
+    \log \tilde{p}(\theta_i) 
+    &=  E_{q_{-1}}[\log p(\theta, y)] + \int \text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \} \; d\theta_i \\
+    &= E_{q_{-1}}[\log p(\theta, y)] + \text{constant}.
+\end{align}
+Therefore, it follows that,
+\begin{align}
+    \text{ELBO}(q)  
+    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\tilde{p}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
+    &= - \text{KL} (q_i \mid \tilde{p}) + \text{constant}.
+\end{align}
+Which is maximized when $q_i(\theta_i) \equiv \tilde{p}(\theta_i)$. It follows that CAVI is simply iteratively updating $q_i(\theta_i) = \tilde{p}(\theta_i)$. If conjugate priors are used for the hyperparameters, $\phi$, then each $q_i(\theta_i)$ is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, $\phi_i$ for each $q_i(\theta_i)$.
 
