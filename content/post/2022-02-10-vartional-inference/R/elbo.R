@@ -1,0 +1,4 @@
+elbo <- function() {
+    
+    
+}

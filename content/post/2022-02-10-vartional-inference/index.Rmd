@@ -1,22 +1,23 @@
 ---
-title: "An Overview of Variational Inference"
+title: "Variational Inference for Dirichlet Process Mixture Models"
 author: "Michael Ellis"
 date: "2022-02-16"
-output: html_document
 header-includes:
-  - \usepackage{float}
-  - \floatplacement{figure}{!htb}
-  - \usepackage{algorithm}
-  - \usepackage{algpseudocode}
+    - \usepackage{amsmath}
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(ggplot2)
+
+theme_set(theme_bw())
 ```
 
 ### Bayesian Inference
 
-A common goal of Bayesian statistical inference is to make probabilistic statements about unknown parameters or unobserved data. This is done by first specifying a joint probability distribution of all observed and unobserved quantities. This is often called the "full probability model" and denoted by $p(\theta, y)$, where $\theta$ are the unknown parameters and $y$ is the observed data. Probability theory tell us that this distribution can be separated into two parts, $p(\theta, y) = p(y \mid \theta) p(\theta)$, where $p(y \mid \theta)$ is referred to as the data distribution and $p(\theta)$ is referred to as the prior distribution of $\theta$. The full probability model can then be used to calculate the posterior density, $p(\theta \mid y)$. If we are also interested in making probabilistic statements about unobserved quantities, commonly denoted by $\tilde{y}$, then we will also want to calculate the posterior predictive density, $p(\tilde{y} \mid y)$. These posterior densities are what allow us to make probabilistic statements about $\theta$ and $\tilde{y}$.  
+The main goal of Bayesian statistical inference is to make probabilistic statements about unknown parameters or unobserved data. This is done by first specifying a joint probability distribution of all observed and unobserved quantities. This is often called the "full probability model" and denoted by $p(\theta, y)$, where $\theta$ are the unknown parameters and $y$ is the observed data. Probability theory tell us that this distribution can be separated into two parts, $p(\theta, y) = p(y \mid \theta) p(\theta)$, where $p(y \mid \theta)$ is referred to as the data distribution and $p(\theta)$ is referred to as the prior distribution of $\theta$. The full probability model can then be used to calculate the posterior density, $p(\theta \mid y)$. If we are also interested in making probabilistic statements about unobserved quantities, commonly denoted by $\tilde{y}$, then we will also want to calculate the posterior predictive density, $p(\tilde{y} \mid y)$. These posterior densities are what allow us to make probabilistic statements about $\theta$ and $\tilde{y}$.  
 
 In theory, we can calculate the posterior density of $\theta$ given the observed data $y$ using Bayes\' rule,
 \begin{align}
@@ -32,23 +33,23 @@ and it is common for this integral to either not have a closed form solution or 
     &= \int p(\tilde{y} \mid \theta, y) p(\theta \mid y)  \; d\theta \\
     &= \int p(\tilde{y} \mid \theta) p(\theta \mid y)  \; d\theta.
 \end{align}
-A wide variety of numerical integration techniques have been developed to overcome this problem. In recent history, Monte Carlo methods (especially Markov chain Monte Carlo -- MCMC) have become the most common approach. While MCMC methods have been widely successful they can still be notoriously slow. As a consequence other approaches that have better computational speed, such as variational approximations, have been developed.
+A wide variety of numerical integration techniques have been developed to overcome this problem. In recent history, Monte Carlo methods (especially Markov chain Monte Carlo -- MCMC) have become the most common approach. While MCMC methods have been widely successful they can still be notoriously slow. As a consequence other approaches, that attempt to avoid numeric integration to have better computational speed, such as variational approximations, have been developed.
 
 ### Variational Inference
 
-Variational inference is an alternative approach where we search a family of approximate densities, $\mathcal{Q}$, to find a density that is "closest" to the target posterior density, $p(\theta \mid y)$. Closest is usually defined as minimizing the Kullback-Leibler (KL) divergence. Let $q$ denote an approximate density from the family $\mathcal{Q}$ then the Kullback-Leibler divergence from $p$ to $q$ is given by
+Variational inference is an alternative approach that uses optimization instead of numeric integration. Variational inference searches a family of approximate densities, $\mathcal{Q}$, to find a density that is "closest" to the target posterior density, $p(\theta \mid y)$. Closest is usually defined as minimizing the Kullback-Leibler (KL) divergence. Let $q$ denote an approximate density from the family $\mathcal{Q}$ then the Kullback-Leibler divergence from $p$ to $q$ is given by
 \begin{align}
     \text{KL}(q \mid \mid p) = - E_q \Big{(} \log \Big{(} \frac{p(\theta \mid y)}{q(\theta)} \Big{)} \Big{)}.
 \end{align}
 
 #### Evidence Lower Bound (ELBO)
 
-The "optimal" approximate posterior density is the solution of the optimization problem
+It follows that in variational inference the "optimal" approximate posterior density is the solution of the optimization problem
 
 \begin{align}
     q^{*}(\theta) = \underset{q(\theta) \in \mathcal{Q}}{\text{arg min}} \; \text{KL} (q \mid \mid p).
 \end{align}
-However, notice the posterior density $p(\theta \mid y)$ that is difficult to calculate because we need to calculate $p(y)$ using integration is in the equation from the KL divergence. It turns out we can rewrite the KL divergence in the following way,
+However, notice the posterior density $p(\theta \mid y)$ that is difficult to calculate is in the equation from the KL divergence. It turns out we can rewrite the KL divergence in the following way,
 
 \begin{align}
     \text{KL}(q \mid \mid p) 
@@ -59,7 +60,7 @@ However, notice the posterior density $p(\theta \mid y)$ that is difficult to ca
     &= E_q[\log q(\theta)] - E_q [\log p(\theta, y)] + \log p(y).
 \end{align} 
 
-It is clear now that $\log p(y)$ is a constant and therefore can be dropped from the function we need to optimize. Dropping the $\log p(y)$ component and multiplying by -1 gives the Evidence Lower BOund or ELBO,
+It is clear that $\log p(y)$ is a constant and therefore can be dropped from the function we need to optimize. Dropping the $\log p(y)$ component and multiplying by -1 gives the Evidence Lower BOund or ELBO,
 
 \begin{align}
     \text{ELBO}(q) = E_q [\log p(\theta, y)] - E_q[\log q(\theta)].
@@ -71,9 +72,9 @@ Maximizing the ELBO is equivalent to minimizing the KL divergence.
 
 Now that the optimization problem is defined the next step is to define a set of possible densities to search over. As before we denote the set of approximate densities to search over by $\mathcal{Q}$. One common way to define this set of densities is known as the mean-field variational family where the parameters are assumed to be independent. That is,
 \begin{align}
-    q(\theta \mid \phi) = \prod_{i=1}^{m} q_i (\theta_i \mid \phi_i)
+    q(\theta) = \prod_{i=1}^{m} q_i (\theta_i)
 \end{align}
-where each $q_j$ is a density, with hyperparameters $\phi_i$, that is appropriate for the corresponding parameter. For example, if there is a single unknown parameter $\theta$ is a mean then we can select $q$ to be a normal distribution with mean $\mu_{\theta}$ and variance $\sigma^2_{\theta}$.
+where each $q_j$ is a density that is appropriate for the corresponding parameter. For example, if one of the unknown parameters, $\theta_i$, is a mean then we can select $q_i$ to be a normal distribution with mean $\mu_{\theta_i}$ and variance $\sigma^2_{\theta_i}$.
 
 #### Coordinate Ascent Mean-Field Variational Inference
 
@@ -86,22 +87,222 @@ Now that the optimization problem is specified the next step is to develop an al
     &= \int \log \Big{(} \frac{p(\theta, y)}{ \prod_{i=1}^m q_i(\theta_i)} \Big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
-    &= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-1}}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
-    &= \int q_{i}(\theta_i) E_{q_{-1}}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
-    &= \int q_{i}(\theta_i) \frac{E_{q_{-1}}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
-    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-1}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
+    &= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-i}}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
+    &= \int q_{i}(\theta_i) E_{q_{-i}}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \frac{E_{q_{-i}}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-i}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
 \end{align}
-The $\text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \}$ term can be considered as an unnormalized density of $\theta_i$. Then the normalized density if given by
-\begin{align}
-    \log \tilde{p}(\theta_i) 
-    &=  E_{q_{-1}}[\log p(\theta, y)] + \int \text{exp} \{ E_{q_{-1}}[\log p(\theta, y)] \} \; d\theta_i \\
-    &= E_{q_{-1}}[\log p(\theta, y)] + \text{constant}.
-\end{align}
-Therefore, it follows that,
+Considered the $\text{exp} \{ E_{q_{-i}}[\log p(\theta, y)] \}$ term  as an unnormalized density of $\theta_i$. Furthermore, notice that $E_{q_{-i}}[\log p(\theta, y)] \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot )]$ where $p(\theta_i \mid \cdot)$, commonly called the full conditional, is the density of $\theta_i$ conditional on all observed data $y$ and all unobserved parameters $\theta_{-i}$. Then it follows that,
 \begin{align}
     \text{ELBO}(q)  
-    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\tilde{p}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp} \{ E_{q_{-i}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
+    &= \int q_{i}(\theta_i) \log \Big{(}\frac{E_{q_{-i}}[\log p(\theta_i \mid \cdot)]}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\ 
     &= - \text{KL} (q_i \mid \tilde{p}) + \text{constant}.
 \end{align}
-Which is maximized when $q_i(\theta_i) \equiv \tilde{p}(\theta_i)$. It follows that CAVI is simply iteratively updating $q_i(\theta_i) = \tilde{p}(\theta_i)$. If conjugate priors are used for the hyperparameters, $\phi$, then each $q_i(\theta_i)$ is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters, $\phi_i$ for each $q_i(\theta_i)$.
+Where, $\tilde{p}(\theta_i) \propto  E_{q_{-i}}[\log p(\theta_i \mid \cdot)]$. Which is maximized when $q_i(\theta_i) \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot)]$. So, CAVI finds the "optimal" approximate posterior density by iteratively updating each $q_i(\theta_i) \propto  E_{q_{-i}}[\log p(\theta_i \mid \cdot)]$ for $i = 1 \cdots m$ until the ELBO is maximized. If conjugate priors are used for the hyperparameters then each $q_i(\theta_i)$ is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters for each $q_i(\theta_i)$. 
 
+### A Finite Mixture of Gaussians
+Let $\mathbf{y} = (y_1, y_2, \cdots, y_N)$ be a sample from a finite mixture of $K$ Gaussian distributions. That is, each observation $y_i$ is assumed to be drawn from one of $K$ Gaussian distributions. Let $p_k$ define the proportion of observations that were drawn from Gaussian distribution $k$. Then the joint distribution of $\mathbf{y}$ can be written as
+\begin{align}
+    p(\mathbf{y} \mid \mathbf{p}, \mathbf{\mu}, \mathbf{\sigma^2}) 
+    = \prod_{i=1}^N \sum_{k = 1}^K p_k N(y_i \mid \mu_k, \sigma^2_k).
+\end{align}
+
+This joint distribution can be represented in another way by introducing an unobserved vector of indicator variables, $z_i = (z_{i1}, z_{i2}, \cdots, z_{ik})$, for each observation $y_i$, such that 
+$z_i \sim \text{multinomial}(1 ; p_1, p_2, \cdots, p_k)$. That is, $z_{ik} = 1$ if $y_i$ is drawn from Gaussian distribution $k$ and $0$ otherwise and $p(z_{ik} = 1) = \phi_k$. Then it follows that the joint distribution of $\mathbf{y}$ and the unobserved vectors indicator variables $\mathbf{z} = (z_1, z_2, \cdots z_N)$ is given by
+\begin{align}
+    p(\mathbf{y}, \mathbf{z} \mid \mathbf{p}, \mathbf{\mu}, \mathbf{\sigma^2}) = \prod_{i=1}^N \prod_{k = 1}^K (p_k N(y_i ; \mu_k, \sigma^2_k))^{z_{ik}}.
+\end{align}
+One problem with using a finite mixture of Gaussian distributions is that the number of distributions to use is assumed to be fixed and known. More commonly, the number of Gaussian distributions, $K$, is a hyperparameter that needs to be tuned or learned from the data. 
+
+### Dirichlet Process Gaussian Mixture Models
+Instead of assuming the number of Gaussian distributions, $K$, is a fixed and known finite number we can assume the number of  Gaussian distributions is countably infinite but the proportion of observations coming from most of the components is zero. That is, $p_k = 0$ for most of the Gaussian distributions. 
+This is commonly done by using a stick-breaking representation of a Dirichlet process. The stick-breaking representation assumes 
+\begin{align}
+    p_k = V_k \prod_{l < k} (1 - V_l), \quad V_k \sim \text{Beta}(1, \lambda) \quad k = 1,2, \cdots.
+\end{align}
+The intuition behind this representation is that we start with a stick of length, break off a stick of length, $V_1$, drawn randomly from $\text{Beta}(1, \lambda_{p})$, and set $p_1 = V_1$. From the remaining stick of length $1 - V_1$ break off another stick of length, $V_2$, drawn randomly from $\text{Beta}(1, \lambda_{p})$ and set $p_2 = V_2(1 - V_1)$. As we continue this process the length of the remaining stick decreases exponentially so that $p_k \approx 0$ for large values of $k$. Therefore, in practice, instead of using an infinite mixture, we can use a finite approximation to the stick-breaking representation by selecting a sufficiently large number of mixture components, $K$. In this case the joint distribution of $\mathbf{y}$ and the unobserved vectors of indicator variables $\mathbf{z}$ has the same from as the finite mixture of Gaussian distributions 
+\begin{align}
+    p(\mathbf{y}, \mathbf{z} \mid \mathbf{p}, \mathbf{\mu}, \mathbf{\sigma^2}) 
+    &= \prod_{i=1}^N \prod_{k = 1}^{K} (p_k N(y_i ; \mu_k, \sigma^2_k))^{z_{ik}}
+\end{align}
+with $K$ chosen to be sufficiently large. However, in this case the stick-breaking representation is used as a prior for $\mathbf{p}$,
+\begin{align}
+     p_k &= V_k \prod_{j=1}^{k-1}(1 - V_j) \quad \text{where} \quad V_k \sim \text{Beta}(1, \lambda) \quad k = 1, 2, \cdots K.
+\end{align}
+The last component, $V_K$, is assumed to be one. We also assign conjugate prior and hyperprior distributions for each $\mu_k$, $\sigma^2_k$, and $\lambda$.
+\begin{align}
+    \mu_k &\sim N(\mu_{\mu_k}, \sigma^2_{\mu_k}) \quad k = 1, 2, \cdots K, \\
+    \sigma^2_k &\sim \text{IG}(\alpha_{\sigma^2_k}, \beta_{\sigma^2_k}) \quad k = 1, 2, \cdots K, \\
+    \lambda &\sim \text{gamma}(a_{\lambda}, b_{\lambda}).
+\end{align}
+
+### Variational Inference for Dirichlet Process Gaussian Mixture Models
+As the the CAVI algorithm requires assume the optimal density has the form 
+\begin{align}
+    q(\mathbf{z}, \lambda, \mathbf{V}, \mathbf{\mu}, \mathbf{\sigma}^2) 
+    = q_{\mathbf{z}}(\mathbf{z}) q_{\lambda}(\lambda) \prod_{k=1}^K q_{\mu_k}(\mu_k) q_{\sigma^2_k}(\sigma^2_k) q_{V_k}(V_k).
+\end{align}
+Since conjugate priors were chosen for each of the parameters and hyperparameters the corresponding optimal distributions have closed form and so can find equations to iteratively update each optimal density's parameters in closed form.
+
+#### Optimal Densities 
+Recal that each of the optimal densities is given by
+\begin{align*}
+q_{\theta_i}(\theta_i) \propto \text{exp}\{E_{-\theta_i} \log p(\theta_i \mid \cdot)\}.
+\end{align*}
+Since we have chosen conjugate prior and hyperprior distributions each of the optimal densities can be calculated in close form.
+
+##### Optimal density for $\mathbf{z}$
+For $i = 1, 2, \cdots, N$ and $k = 1, 2, \cdots, K$,
+\begin{align*}
+\log q_{z_{ik}}(z_{ik}) 
+&\propto E_{p, \mu_k, \sigma^2_k} \log p(z_{ik} = 1 \mid \cdot) \\
+&= E_{p, \mu_k, \sigma^2_k} \log p_k N(y_k ; \mu_k, \sigma^2_k) \\
+&= E_{p}[\log p_k] - \frac{1}{2}\log(2\pi) - \frac{1}{2} E_{\sigma^2_k}[\log \sigma^2_k] - \frac{1}{2 E_{\sigma^2_k}[\log \sigma^2_k]} E_{\mu_k}[(y_i - \mu_k)^2] \\
+&= \log \tilde{p}_{q(p_{ik})}.
+\end{align*}
+It follows that
+\begin{align}
+ q_{\mathbf{z}}(\mathbf{z}) = \text{multinomial}(N; \boldsymbol{p}_{q(\mathbf{p})}) \quad \text{where} \quad p_{q(p_{ik})} = \frac{\tilde{p}_{q(p_{ik})}}{\sum_{k=1}^{K} \tilde{p}_{q(p_{ik})}} \quad i = 1,2, \cdots N, \quad k = 1,2, \cdots K.
+\end{align}
+
+##### Optimal density for $\mathbf{\mu}_k$
+For $k = 1, 2, \cdots, K$,
+\begin{align}
+    \log q_{\mu_k}(\mu_k) 
+    &\propto E_{\mathbf{z}, \mathbf{\sigma}^2_k} \log p(\mu_k \mid \cdot) \\
+    &= E_{\mathbf{z}, \mathbf{\sigma}^2_k} \sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log N(\mu_k ; \mu_{\mu_k}, \sigma^2_{\mu_k}).
+\end{align}
+It follows that,
+\begin{align}
+q_{\mu_{k}}(\mu_{k}) &= N(\mu_{q(\mu_k)}, \sigma^2_{q(\mu_k)}).
+\end{align}
+Where,
+\begin{align}
+\sigma^2_{q(\mu_k)} = \Big{(}\frac{1}{\sigma^2_0} + \frac{ \sum_{i=1}^N E_{z}[z_{ik}]}{E_{\sigma^2_k} [\sigma^2_k]} \Big{)}^{-1}, \quad
+\mu_{q(\mu_k)} = \sigma^2_{q(\mu_k)} \Big{(} \frac{\mu_0}{\sigma^2_0} + \frac{\sum_{i=1}^N y_i E_{z}[z_{ik}]}{E_{\sigma^2_k} [\sigma^2_k]}\Big{)}.
+\end{align}
+
+##### Optimal density for $\mathbf{\sigma}^2_k$
+For $k = 1, 2, \cdots, K$,
+\begin{align}
+    \log q_{\sigma^2_k}(\sigma^2_k) 
+    &\propto E_{\mathbf{z}, \mathbf{\mu}_k} \log p(\sigma^2_k \mid \cdot) \\
+    &= E_{\mathbf{z}, \mathbf{\mu}_k} \sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log \text{IG}(\sigma^2_k ; \alpha_{\sigma^2_k}, \beta_{\sigma^2_k}).
+\end{align}
+It follows that,
+\begin{align}
+q_{\sigma^2_{k}}(\sigma^2_{k}) = \text{IG}\Big{(} A_{q(\sigma^2_k)}, B_{q(\sigma^2_k)} \Big{)}.
+\end{align}
+Where,
+\begin{align}
+     A_{q(\sigma^2_k)} = A + \frac{\sum_{i=1}^N E_{z}[z_{ik}]}{2}, \quad B_{q(\sigma^2_k)} = B + \frac{\sum_{i=1}^N E_{z, \mu_k}[(y_i - \mu_k)^2 z_{ik}]}{2}
+\end{align}
+
+##### Optimal density for $\mathbf{V}_k$
+For $k = 1, 2, \cdots, K-1$,
+\begin{align}
+    \log q_{V_k}(V_k) 
+    &\propto E_{\mathbf{z}} \log p(V_k \mid \cdot) \\
+    &= E_{\mathbf{z}} \sum_{i=1}^N \sum_{k=1}^K \log \text{Ber}(z_{ik}; V_k) + \log \text{Beta}(V_k ; 1, \lambda)
+\end{align}
+It follows that,
+\begin{align}
+q_{V_{k}}(V_{k}) = \text{Beta}\Big{(}\alpha_{q(V_k)}, \beta_{q(V_k)} \Big{)}.
+\end{align}
+Where,
+\begin{align}
+\alpha_{q(V_k)} = 1 + \sum_{i=1}^N E_{z}[z_{ik}], \quad \beta_{q(V_k)} =  E_{\lambda}[\lambda] + \sum_{j = k+1}^{K} \sum_{i=1}^N E_z[z_{ij}]
+\end{align}
+
+##### Optimal density for $\lambda$
+\begin{align}
+    \log q_{\lambda}(\lambda) 
+    &\propto E_{\mathbf{V}} \log p(\lambda \mid \cdot) \\
+    &= E_{\mathbf{V}} \sum_{k=1}^K \log \text{Beta}(V_k; 1, \lambda) + \log \text{Gamma}(\lambda ; a_{\lambda}, b_{\lambda})
+\end{align}
+It follows that,
+\begin{align}
+    q_{\lambda}(\lambda) = \text{Gamma}(\alpha_{q(\lambda)}, \beta_{q(\lambda)}).
+\end{align}
+Where,
+\begin{align}
+    \alpha_{q(\lambda)} = a_{\lambda} + N - 1, \quad \beta_{q(\lambda)} = b_{\lambda} - \sum_{k=1}^{K-1} E_{\mathbf{V}} \log (1 - V_k)
+\end{align}
+
+##### ELBO
+We now calculate the ELBO for the Dirichlet Process Gaussian Mixture Model. It is helpful to know that if $V_k \sim \text{Beta}(1, \lambda)$ then $1-V_k \sim \text{Beta}(\lambda, 1)$ and so it follows that
+\begin{align*}
+p(p_k) = p(V_k) \prod_{j=1}^{k-1}p(1 - V_j) = \text{Beta}(V_k ; 1, \lambda) \prod_{j=1}^{k-1} \text{Beta}(V_j \; \lambda, 1).
+\end{align*}
+Recall the ELBO has the form
+\begin{align}
+    \text{ELBO}(q) = E_q [\log p(\theta, y)] - E_q[\log q(\theta)].
+\end{align}
+We start with the first term
+\begin{split}
+E_q [ \log p(\mathbf{y}, \mathbf{z}, \mathbf{p}, \mathbf{V}, \lambda, \mathbf{\mu}, \mathbf{\sigma}^2)]  &= \sum_{i=1}^N \sum_{k=1}^{K} E_q [\log p(y_i, z_i \mid \mu_k, \sigma^2_k, p_k)] + E_q [\log p(\mu_k)] + E_q [\log p(\sigma^2_k)] + E_q [\log p(\boldsymbol{p} \mid \lambda)]  + E_q[p(\lambda)] \\
+    &= \sum_{i=1}^N \sum_{k=1}^{K} [(- E_q[z_{ik}]/2)(\log(2 \pi) + E_q[\log \sigma^2_k] + \frac{1}{E_q[\sigma^2_k]} E_q[(y_i - \mu_k)^2]) + E_q[z_{ik}] E_q [\log p_k]] \\ 
+    &+ \sum_{k=1}^K [(-1/2)(\log(2 \pi) + \log(\sigma^2_{\mu_k}) + \frac{1}{\sigma^2_{\mu_k}}E_q((\mu_k - \mu_{\mu_k})^2))] \\
+    &+ \sum_{k=1}^K [\log \beta_{\sigma^2_k} - \log \Gamma(\alpha_{\sigma^2_k}) - (\alpha_{\sigma^2_k} + 1)E_q[\log (\sigma^2_k)] + \frac{\beta_{\sigma^2_k}}{E_q[\sigma^2_k]}] \\
+    &+\sum_{k=1}^K K [2 E_q[\log \Gamma(1 + \lambda)] - 2 E_q[\log \Gamma(\lambda)] + (E_q[\lambda]-1)E_q[\log (1-V_k)]] \\
+    &+ a_{\lambda} \log (b_{\lambda}) - \log \Gamma (a_\lambda) + (a_{\lambda} - 1) E_q[\log \lambda] - b_{\lambda} E_q[\lambda]
+\end{split}
+
+Now the second term,
+\begin{split}
+    E_q [ \log q(\mathbf{z}, \mathbf{V}, \lambda, \mathbf{\mu}, \mathbf{\sigma}^2)] 
+    &= \sum_{i=1}^N  E_q[\log q(z_{i})] + \sum_{k=1}^K E_q[\log q(\mu_k)] + \sum_{k=1}^K E_q[\log q(\sigma^2_k)] +  \sum_{k=1}^{K-1} E_q[\log q(V_k)] + E_q[\log q(\lambda)]  \\
+    &= \sum_{i=1}^N  \sum_{k=1}^K E_q[z_{ik}] \log p_{q(p_{ik})} \\
+    &+ \sum_{k=1}^K (-1/2)[\log(2 \pi) + \log(\sigma^2_{q(\mu_k)}) + \frac{1}{\sigma^2_{q(\mu_k)}}(E_q[(\mu_k - \mu_{q(\mu_k)})^2])]  \\
+    &+ \sum_{k=1}^K A_{q(\sigma^2_k)} \log \beta_{q(\sigma^2_k)} - \log \Gamma(A_{q(\sigma^2_k)}) - (A_{q(\sigma^2_k)} + 1)E_q[\log \sigma^2_k] - \frac{\beta_{q(\sigma^2_k)}}{E_q[\sigma^2_k]} \\
+    &+ \sum_{k=1}^{K-1} \log \Gamma(\alpha_{q(V_k)} + \beta_{q(V_k)}) - \log \Gamma(\alpha_{q(V_k)}) - \log \Gamma(\beta_{q(V_k)}) + (\alpha_{q(V_k)}-1)E_q[\log(V_k)] + (\beta_{q(V_k)}-1)E_q[\log(1 - V_k)] \\
+    &+ \alpha_{q(\lambda)} \log \beta_{q(\lambda)} - \log \Gamma(\alpha_{q(\lambda)}) + (\alpha_{q(\lambda)}-1)E_q[\log \lambda] - \beta_{q(\lambda)} E_q[\lambda]
+\end{split}
+
+##### Expectations
+The expectations need to update the parameters are simple to calculate since each of the optimal densities is known in closed form.
+\begin{align}
+    E_{\mathbf{z}} [z_{ik}] &= p_{q(p_{ik})}, \\
+    E_{\mu_k} [\mu_k] &= \mu_{q(\mu_k)}, \\
+    E_{\sigma^2_k} [\sigma^2_k] &= \frac{B_{q(\sigma^2_k)}}{A_{q(\sigma^2_k)}}, \\
+    E_{\sigma^2_k} [\log \sigma^2_k] &= \log (B_{q(\sigma^2_k)}) - \psi(A_{q(\sigma^2_k)}), \\
+    E_{\mu_k}[(y_i - \mu_k)^2] &= (y_i - \mu_{q(\mu_k)})^2 + \sigma^2_{q(\mu_k)}, \\
+    E_q[(\mu_k - \mu_{\mu_k})^2] &= (\mu_{q(\mu_k)} - \mu_{\mu_k})^2 + \sigma^2_{q(\mu_k)}, \\
+    E_{\mathbf{V}} [\log (1 - V_k)] &= \psi(\beta_{q(V_k)}) - \psi(\alpha_{q(V_k)} + \beta_{q(V_k)}), \\
+    E_{\mathbf{p}}[\log p_k] &= \psi(\alpha_{q(V_k)}) - \psi(\alpha_{q(V_k)} + \beta_{q(V_k)}) +  \sum_{j=1}^{k-1} [\psi(\beta_{q(V_j)}) - \psi(\alpha_{q(V_j)} + \beta_{q(V_j)})] \\
+    E_q[\lambda] &= \frac{\alpha_{q(\lambda)}}{\alpha_{q(\lambda)} + \beta_{q(\lambda)}} \\
+    E_q[\log \lambda] &= \psi(\alpha_{q(\lambda)}) - \log(\beta_{q(\lambda)}) \\
+    E_q[\log \Gamma(1 + \lambda)] - E_q[\log \Gamma(\lambda)] &= E_q[\log \Gamma(1 + \lambda) - \log \Gamma(\lambda)] = E_q[\log \lambda].
+\end{align}
+Where $\psi$ denotes the digamma function.
+
+### Example
+As an example we will simulate data from a mixture of 3 Gaussian distributions. It is helpful to know that if $V_k \sim \text{Beta}(1, \beta)$ then $1-V_k \sim \text{Beta}(\beta, 1)$ and so it follows that
+\begin{align*}
+p(\pi_k) = p(V_k) \prod_{j=1}^{k-1}p(1 - V_j) = \text{Beta}(V_k \mid 1, \beta) \prod_{j=1}^{k-1} \text{Beta}(V_j \mid \beta, 1).
+\end{align*}  
+```{r, message=FALSE, out.width="80%", fig.asp = 0.5, fig.width = 10}
+## simulate data
+set.seed(23)
+N <- 300 # number of samples to draw
+mu <- c(-5, 2, 10) # mean of each gaussian
+sd <- c(0.5, 1, 0.25) # standard deviation of each gaussian
+probs <- c(1/3, 1/3, 2/3) # probability of an observation being in each gaussian
+
+# sample which gaussian each observation is in
+x <- sample(x = c(1,2,3), size = N, replace = TRUE, prob = probs) 
+df <- data.frame(
+        x = factor(x),
+        y = rnorm(N, mu[x], sd[x]) # sample observation given group
+    )
+    
+ggplot(df, aes(x = y, color = x, fill = x)) + 
+    geom_histogram() + 
+    labs(title = "Simulated Mixture of Gaussians")
+```
+
+
+```{r comment='', echo = FALSE}
+cat(readLines(here::here("R", "sim-data-mix-gaussians.R")), sep = '\n')
+```
