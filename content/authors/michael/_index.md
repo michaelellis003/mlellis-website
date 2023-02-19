@@ -10,7 +10,7 @@ education:
     year: 2016
 email: ""
 highlight_name: TRUE
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}:
+interests:
 - Decision Theory
 - Bayesian statistical methods for time-series, spatial and spatio-temporal data
 - Bayesian nonparametrics
@@ -34,7 +34,9 @@ I am currently a Data Scientist on the conversational AI team at The Home Depot.
 
 I wrote my Master's thesis on {{< staticref "uploads/SI_for_HMM.pdf" "newtab" >}}Sequential Monte Carlo Methods for Hidden Markov Models{{< /staticref >}}.
 
-You can email at [michael@mlellis.com](mailto:michael@mlellis.com)  
+You can email at [michael@mlellis.com](mailto:michael@mlellis.com) 
+
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}:
 
 Here is a letter Kurt Vonnegut wrote to his daughter, Nanno, from the book Kurt Vonnegut: Letters.
 
