@@ -74,19 +74,19 @@ where each <span class="math inline">\(q_j\)</span> is a density that is appropr
     &amp;= \int \log \Big{(} \frac{p(\theta, y)}{ \prod_{i=1}^m q_i(\theta_i)} \Big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
     &amp;= \int \big{(} \log p(\theta, y) -  \sum_{i=1}^m \log q_i(\theta_i) \big{)} \prod_{i=1}^m                 q_i(\theta_i) \; d \theta \\
-    &amp;= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-i}}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
-    &amp;= \int q_{i}(\theta_i) E_{q_{-i}}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
-    &amp;= \int q_{i}(\theta_i) \frac{E_{q_{-i}}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
-    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-i}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
+    &amp;= \int q_{i}(\theta_i) \Big{[} \underbrace{\int q_{-i}(\theta_{-i}) \log p(\theta, y) \; d \theta_{-i}}_{\text{$E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)]$}} \Big{]} \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i - \underbrace{\int q_{-i} (\theta_{-i}) \log q_{-i} (\theta_{-i}) \; d \theta_{-i}}_{\text{function of $\theta_{-1}$ only}} \\
+    &amp;= \int q_{i}(\theta_i) E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)] \; d \theta_i - \int q_i (\theta_i) \log q_i (\theta_i) \; d \theta_i + \text{constant} \\
+    &amp;= \int q_{i}(\theta_i) \frac{E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)]}{\log q_i (\theta_i)} \; d \theta_i + \text{constant} \\
+    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp}\{E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant}.
 \end{align}\]</span>
-Considered the <span class="math inline">\(\text{exp} \{ E_{q_{-i}}[\log p(\theta, y)] \}\)</span> term as an unnormalized density of <span class="math inline">\(\theta_i\)</span>. Furthermore, notice that <span class="math inline">\(E_{q_{-i}}[\log p(\theta, y)] \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot )]\)</span> where <span class="math inline">\(p(\theta_i \mid \cdot)\)</span>, commonly called the full conditional, is the density of <span class="math inline">\(\theta_i\)</span> conditional on all observed data <span class="math inline">\(y\)</span> and all unobserved parameters <span class="math inline">\(\theta_{-i}\)</span>. Then it follows that,
+Considered the <span class="math inline">\(\text{exp} \{ E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)] \}\)</span> term as an unnormalized density of <span class="math inline">\(\theta_i\)</span>. Furthermore, notice that <span class="math inline">\(E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)] \propto E_{q_{-i}(\theta_{-i})}[\log p(\theta_i \mid \cdot )]\)</span> where <span class="math inline">\(p(\theta_i \mid \cdot)\)</span>, commonly called the full conditional, is the density of <span class="math inline">\(\theta_i\)</span> conditional on all observed data <span class="math inline">\(y\)</span> and all unobserved parameters <span class="math inline">\(\theta_{-i}\)</span>. Then it follows that,
 <span class="math display">\[\begin{align}
     \text{ELBO}(q)  
-    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp} \{ E_{q_{-i}}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
-    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{E_{q_{-i}}[\log p(\theta_i \mid \cdot)]}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\ 
+    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{\text{exp} \{ E_{q_{-i}(\theta_{-i})}[\log p(\theta, y)] \}}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\
+    &amp;= \int q_{i}(\theta_i) \log \Big{(}\frac{E_{q_{-i}(\theta_{-i})}[\log p(\theta_i \mid \cdot)]}{q_i (\theta_i)} \Big{)} \; d \theta_i + \text{constant} \\ 
     &amp;= - \text{KL} (q_i \mid \tilde{p}) + \text{constant}.
 \end{align}\]</span>
-Where, <span class="math inline">\(\tilde{p}(\theta_i) \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot)]\)</span>. Which is maximized when <span class="math inline">\(q_i(\theta_i) \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot)]\)</span>. So, CAVI finds the “optimal” approximate posterior density by iteratively updating each <span class="math inline">\(q_i(\theta_i) \propto E_{q_{-i}}[\log p(\theta_i \mid \cdot)]\)</span> for <span class="math inline">\(i = 1 \cdots m\)</span> until the ELBO is maximized. If conjugate priors are used for the hyperparameters then each <span class="math inline">\(q_i(\theta_i)\)</span> is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters for each <span class="math inline">\(q_i(\theta_i)\)</span>.</p>
+Where, <span class="math inline">\(\tilde{p}(\theta_i) \propto E_{q_{-i}(\theta_{-i})}[\log p(\theta_i \mid \cdot)]\)</span>. Which is maximized when <span class="math inline">\(q_i(\theta_i) \propto E_{q_{-i}(\theta_{-i})}[\log p(\theta_i \mid \cdot)]\)</span>. So, CAVI finds the “optimal” approximate posterior density by iteratively updating each <span class="math inline">\(q_i(\theta_i) \propto E_{q_{-i}(\theta_{-i})}[\log p(\theta_i \mid \cdot)]\)</span> for <span class="math inline">\(i = 1 \cdots m\)</span> until the ELBO is maximized. If conjugate priors are used for the hyperparameters then each <span class="math inline">\(q_i(\theta_i)\)</span> is a known closed form density and CAVI simply becomes iteratively updating the hyperparameters for each <span class="math inline">\(q_i(\theta_i)\)</span>.</p>
 </div>
 </div>
 <div id="a-finite-mixture-of-gaussians" class="section level3">
@@ -117,9 +117,12 @@ The intuition behind this representation is that we start with a stick of length
 \end{align}\]</span>
 with <span class="math inline">\(K\)</span> chosen to be sufficiently large. However, in this case the stick-breaking representation is used as a prior for <span class="math inline">\(\mathbf{p}\)</span>,
 <span class="math display">\[\begin{align}
-     p_k &amp;= V_k \prod_{j=1}^{k-1}(1 - V_j) \quad \text{where} \quad V_k \sim \text{Beta}(1, \lambda) \quad k = 1, 2, \cdots K.
+     p_k &amp;= V_k \prod_{j=1}^{k-1}(1 - V_j) \quad \text{where} \quad V_k \sim \text{Beta}(1, \lambda) \quad k = 1, 2, \cdots K-1.
 \end{align}\]</span>
-The last component, <span class="math inline">\(V_K\)</span>, is assumed to be one. We also assign conjugate prior and hyperprior distributions for each <span class="math inline">\(\mu_k\)</span>, <span class="math inline">\(\sigma^2_k\)</span>, and <span class="math inline">\(\lambda\)</span>.
+The last component, <span class="math inline">\(V_K\)</span>, is assumed to be one. It will be helpful to know that if <span class="math inline">\(V_k \sim \text{Beta}(1, \lambda)\)</span> then <span class="math inline">\(1-V_k \sim \text{Beta}(\lambda, 1)\)</span> and so it follows that
+<span class="math display">\[\begin{align*}
+p(p_k) = p(V_k) \prod_{j=1}^{k-1}p(1 - V_j) = \text{Beta}(V_k ; 1, \lambda) \prod_{j=1}^{k-1} \text{Beta}(V_j \; \lambda, 1) \quad k = 1, 2, \cdots K-1.
+\end{align*}\]</span> We also assign conjugate prior and hyperprior distributions for each <span class="math inline">\(\mu_k\)</span>, <span class="math inline">\(\sigma^2_k\)</span>, and <span class="math inline">\(\lambda\)</span>.
 <span class="math display">\[\begin{align}
     \mu_k &amp;\sim N(\mu_{\mu_k}, \sigma^2_{\mu_k}) \quad k = 1, 2, \cdots K, \\
     \sigma^2_k &amp;\sim \text{IG}(\alpha_{\sigma^2_k}, \beta_{\sigma^2_k}) \quad k = 1, 2, \cdots K, \\
@@ -138,7 +141,7 @@ Since conjugate priors were chosen for each of the parameters and hyperparameter
 <h4>Optimal Densities</h4>
 <p>Recal that each of the optimal densities is given by
 <span class="math display">\[\begin{align*}
-q_{\theta_i}(\theta_i) \propto \text{exp}\{E_{-\theta_i} \log p(\theta_i \mid \cdot)\}.
+q_{\theta_i}(\theta_i) \propto \text{exp}\{E_{q(-\theta_i)} \log p(\theta_i \mid \cdot)\}.
 \end{align*}\]</span>
 Since we have chosen conjugate prior and hyperprior distributions each of the optimal densities can be calculated in close form.</p>
 <div id="optimal-density-for-mathbfz" class="section level5">
@@ -146,9 +149,9 @@ Since we have chosen conjugate prior and hyperprior distributions each of the op
 <p>For <span class="math inline">\(i = 1, 2, \cdots, N\)</span> and <span class="math inline">\(k = 1, 2, \cdots, K\)</span>,
 <span class="math display">\[\begin{align*}
 \log q_{z_{ik}}(z_{ik}) 
-&amp;\propto E_{p, \mu_k, \sigma^2_k} \log p(z_{ik} = 1 \mid \cdot) \\
-&amp;= E_{p, \mu_k, \sigma^2_k} \log p_k N(y_k ; \mu_k, \sigma^2_k) \\
-&amp;= E_{p}[\log p_k] - \frac{1}{2}\log(2\pi) - \frac{1}{2} E_{\sigma^2_k}[\log \sigma^2_k] - \frac{1}{2 E_{\sigma^2_k}[\log \sigma^2_k]} E_{\mu_k}[(y_i - \mu_k)^2] \\
+&amp;\propto E_{q(V_k, \mu_k, \sigma^2_k)} \log p(z_{ik} = 1 \mid \cdot) \\
+&amp;= E_{q(V_k, \mu_k, \sigma^2_k)} \log p_k N(y_k ; \mu_k, \sigma^2_k) \\
+&amp;= E_{q(V_k)}[\log p_k] - \frac{1}{2}\log(2\pi) - \frac{1}{2} E_{q(\sigma^2_k)}[\log \sigma^2_k] - \frac{1}{2 E_{q(\sigma^2_k)}[\log \sigma^2_k]} E_{q(\mu_k)}[(y_i - \mu_k)^2] \\
 &amp;= \log \tilde{p}_{q(p_{ik})}.
 \end{align*}\]</span>
 It follows that
@@ -161,8 +164,8 @@ It follows that
 <p>For <span class="math inline">\(k = 1, 2, \cdots, K\)</span>,
 <span class="math display">\[\begin{align}
     \log q_{\mu_k}(\mu_k) 
-    &amp;\propto E_{\mathbf{z}, \mathbf{\sigma}^2_k} \log p(\mu_k \mid \cdot) \\
-    &amp;= E_{\mathbf{z}, \mathbf{\sigma}^2_k} \sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log N(\mu_k ; \mu_{\mu_k}, \sigma^2_{\mu_k}).
+    &amp;\propto E_{q(\mathbf{z}, \mathbf{\sigma}^2_k)} \log p(\mu_k \mid \cdot) \\
+    &amp;= E_{q(\mathbf{z}, \mathbf{\sigma}^2_k)} \sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log N(\mu_k ; \mu_{\mu_k}, \sigma^2_{\mu_k}).
 \end{align}\]</span>
 It follows that,
 <span class="math display">\[\begin{align}
@@ -170,8 +173,8 @@ q_{\mu_{k}}(\mu_{k}) &amp;= N(\mu_{q(\mu_k)}, \sigma^2_{q(\mu_k)}).
 \end{align}\]</span>
 Where,
 <span class="math display">\[\begin{align}
-\sigma^2_{q(\mu_k)} = \Big{(}\frac{1}{\sigma^2_0} + \frac{ \sum_{i=1}^N E_{z}[z_{ik}]}{E_{\sigma^2_k} [\sigma^2_k]} \Big{)}^{-1}, \quad
-\mu_{q(\mu_k)} = \sigma^2_{q(\mu_k)} \Big{(} \frac{\mu_0}{\sigma^2_0} + \frac{\sum_{i=1}^N y_i E_{z}[z_{ik}]}{E_{\sigma^2_k} [\sigma^2_k]}\Big{)}.
+\sigma^2_{q(\mu_k)} = \Big{(}\frac{1}{\sigma^2_0} + \frac{ \sum_{i=1}^N E_{q(z)}[z_{ik}]}{E_{q(\sigma^2_k)} [\sigma^2_k]} \Big{)}^{-1}, \quad
+\mu_{q(\mu_k)} = \sigma^2_{q(\mu_k)} \Big{(} \frac{\mu_0}{\sigma^2_0} + \frac{\sum_{i=1}^N y_i E_{q(z)}[z_{ik}]}{E_{q(\sigma^2_k)} [\sigma^2_k]}\Big{)}.
 \end{align}\]</span></p>
 </div>
 <div id="optimal-density-for-mathbfsigma2_k" class="section level5">
@@ -179,16 +182,16 @@ Where,
 <p>For <span class="math inline">\(k = 1, 2, \cdots, K\)</span>,
 <span class="math display">\[\begin{align}
     \log q_{\sigma^2_k}(\sigma^2_k) 
-    &amp;\propto E_{\mathbf{z}, \mathbf{\mu}_k} \log p(\sigma^2_k \mid \cdot) \\
-    &amp;= E_{\mathbf{z}, \mathbf{\mu}_k} \sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log \text{IG}(\sigma^2_k ; \alpha_{\sigma^2_k}, \beta_{\sigma^2_k}).
+    &amp;\propto E_{q(\mathbf{z}, \mathbf{\mu}_k)} \log p(\sigma^2_k \mid \cdot) \\
+    &amp;= E_{q(\mathbf{z}, \mathbf{\mu}_k)} \Big{[}\sum_{i=1}^N \log N(y_i ; \mu_k, \sigma^2_k)^{z_{ik}} + \log \text{Inv-gamma}(\sigma^2_k ; \alpha_{\sigma^2_k}, \beta_{\sigma^2_k})\Big{]}.
 \end{align}\]</span>
 It follows that,
 <span class="math display">\[\begin{align}
-q_{\sigma^2_{k}}(\sigma^2_{k}) = \text{IG}\Big{(} A_{q(\sigma^2_k)}, B_{q(\sigma^2_k)} \Big{)}.
+q_{\sigma^2_{k}}(\sigma^2_{k}) = \text{Inv-gamma}\Big{(} A_{q(\sigma^2_k)}, B_{q(\sigma^2_k)} \Big{)}.
 \end{align}\]</span>
 Where,
 <span class="math display">\[\begin{align}
-     A_{q(\sigma^2_k)} = A + \frac{\sum_{i=1}^N E_{z}[z_{ik}]}{2}, \quad B_{q(\sigma^2_k)} = B + \frac{\sum_{i=1}^N E_{z, \mu_k}[(y_i - \mu_k)^2 z_{ik}]}{2}
+     A_{q(\sigma^2_k)} = A + \frac{\sum_{i=1}^N E_{q(z)}[z_{ik}]}{2}, \quad B_{q(\sigma^2_k)} = B + \frac{\sum_{i=1}^N E_{q(z, \mu_k)}[(y_i - \mu_k)^2 z_{ik}]}{2}
 \end{align}\]</span></p>
 </div>
 <div id="optimal-density-for-mathbfv_k" class="section level5">
@@ -196,8 +199,8 @@ Where,
 <p>For <span class="math inline">\(k = 1, 2, \cdots, K-1\)</span>,
 <span class="math display">\[\begin{align}
     \log q_{V_k}(V_k) 
-    &amp;\propto E_{\mathbf{z}} \log p(V_k \mid \cdot) \\
-    &amp;= E_{\mathbf{z}} \sum_{i=1}^N \sum_{k=1}^K \log \text{Ber}(z_{ik}; V_k) + \log \text{Beta}(V_k ; 1, \lambda)
+    &amp;\propto E_{q(z)} \log p(V_k \mid \cdot) \\
+    &amp;= E_{q(z)} \Big{[} \sum_{i=1}^N \sum_{k=1}^K \log \text{Ber}(z_{ik}; V_k) + \log \text{Beta}(V_k ; 1, \lambda) \Big{]}.
 \end{align}\]</span>
 It follows that,
 <span class="math display">\[\begin{align}
@@ -205,15 +208,15 @@ q_{V_{k}}(V_{k}) = \text{Beta}\Big{(}\alpha_{q(V_k)}, \beta_{q(V_k)} \Big{)}.
 \end{align}\]</span>
 Where,
 <span class="math display">\[\begin{align}
-\alpha_{q(V_k)} = 1 + \sum_{i=1}^N E_{z}[z_{ik}], \quad \beta_{q(V_k)} =  E_{\lambda}[\lambda] + \sum_{j = k+1}^{K} \sum_{i=1}^N E_z[z_{ij}]
+\alpha_{q(V_k)} = 1 + \sum_{i=1}^N E_{q(z)}[z_{ik}], \quad \beta_{q(V_k)} =  E_{q(\lambda)}[\lambda] + \sum_{j = k+1}^{K} \sum_{i=1}^N E_{q(z)}[z_{ij}]
 \end{align}\]</span></p>
 </div>
 <div id="optimal-density-for-lambda" class="section level5">
 <h5>Optimal density for <span class="math inline">\(\lambda\)</span></h5>
 <p><span class="math display">\[\begin{align}
     \log q_{\lambda}(\lambda) 
-    &amp;\propto E_{\mathbf{V}} \log p(\lambda \mid \cdot) \\
-    &amp;= E_{\mathbf{V}} \sum_{k=1}^K \log \text{Beta}(V_k; 1, \lambda) + \log \text{Gamma}(\lambda ; a_{\lambda}, b_{\lambda})
+    &amp;\propto E_{q(V)} \log p(\lambda \mid \cdot) \\
+    &amp;= E_{q(V)} \Big{[} \sum_{k=1}^K \log \text{Beta}(V_k; 1, \lambda) + \log \text{Gamma}(\lambda ; a_{\lambda}, b_{\lambda}) \Big{]}
 \end{align}\]</span>
 It follows that,
 <span class="math display">\[\begin{align}
@@ -221,15 +224,12 @@ It follows that,
 \end{align}\]</span>
 Where,
 <span class="math display">\[\begin{align}
-    \alpha_{q(\lambda)} = a_{\lambda} + N - 1, \quad \beta_{q(\lambda)} = b_{\lambda} - \sum_{k=1}^{K-1} E_{\mathbf{V}} \log (1 - V_k)
+    \alpha_{q(\lambda)} = a_{\lambda} + N - 1, \quad \beta_{q(\lambda)} = b_{\lambda} - \sum_{k=1}^{K-1} E_{q(V)} \log (1 - V_k)
 \end{align}\]</span></p>
 </div>
 <div id="elbo" class="section level5">
 <h5>ELBO</h5>
-We now calculate the ELBO for the Dirichlet Process Gaussian Mixture Model. It is helpful to know that if <span class="math inline">\(V_k \sim \text{Beta}(1, \lambda)\)</span> then <span class="math inline">\(1-V_k \sim \text{Beta}(\lambda, 1)\)</span> and so it follows that
-<span class="math display">\[\begin{align*}
-p(p_k) = p(V_k) \prod_{j=1}^{k-1}p(1 - V_j) = \text{Beta}(V_k ; 1, \lambda) \prod_{j=1}^{k-1} \text{Beta}(V_j \; \lambda, 1).
-\end{align*}\]</span>
+We now calculate the ELBO for the Dirichlet Process Gaussian Mixture Model.
 Recall the ELBO has the form
 <span class="math display">\[\begin{align}
     \text{ELBO}(q) = E_q [\log p(\theta, y)] - E_q[\log q(\theta)].
@@ -237,9 +237,9 @@ Recall the ELBO has the form
 We start with the first term
 <span class="math display">\[\begin{split}
 E_q [ \log p(\mathbf{y}, \mathbf{z}, \mathbf{p}, \mathbf{V}, \lambda, \mathbf{\mu}, \mathbf{\sigma}^2)]  &amp;= \sum_{i=1}^N \sum_{k=1}^{K} E_q [\log p(y_i, z_i \mid \mu_k, \sigma^2_k, p_k)] + E_q [\log p(\mu_k)] + E_q [\log p(\sigma^2_k)] + E_q [\log p(\boldsymbol{p} \mid \lambda)]  + E_q[p(\lambda)] \\
-    &amp;= \sum_{i=1}^N \sum_{k=1}^{K} [(- E_q[z_{ik}]/2)(\log(2 \pi) + E_q[\log \sigma^2_k] + \frac{1}{E_q[\sigma^2_k]} E_q[(y_i - \mu_k)^2]) + E_q[z_{ik}] E_q [\log p_k]] \\ 
+    &amp;= \sum_{i=1}^N \sum_{k=1}^{K} E_q[z_{ik}] [E_q[\log p_k] - \log(2\pi)/2 - \log(\sigma^2_k)/2 - E_q[(y_i - \mu_k])^2]/(2E_q[\sigma^2_k]) \\ 
     &amp;+ \sum_{k=1}^K [(-1/2)(\log(2 \pi) + \log(\sigma^2_{\mu_k}) + \frac{1}{\sigma^2_{\mu_k}}E_q((\mu_k - \mu_{\mu_k})^2))] \\
-    &amp;+ \sum_{k=1}^K [\log \beta_{\sigma^2_k} - \log \Gamma(\alpha_{\sigma^2_k}) - (\alpha_{\sigma^2_k} + 1)E_q[\log (\sigma^2_k)] + \frac{\beta_{\sigma^2_k}}{E_q[\sigma^2_k]}] \\
+    &amp;+ \sum_{k=1}^K [\alpha_{\sigma^2_k} \log \beta_{\sigma^2_k} - \log \Gamma(\alpha_{\sigma^2_k}) - (\alpha_{\sigma^2_k} + 1)E_q[\log (\sigma^2_k)] + \frac{\beta_{\sigma^2_k}}{E_q[\sigma^2_k]}] \\
     &amp;+\sum_{k=1}^K K [2 E_q[\log \Gamma(1 + \lambda)] - 2 E_q[\log \Gamma(\lambda)] + (E_q[\lambda]-1)E_q[\log (1-V_k)]] \\
     &amp;+ a_{\lambda} \log (b_{\lambda}) - \log \Gamma (a_\lambda) + (a_{\lambda} - 1) E_q[\log \lambda] - b_{\lambda} E_q[\lambda]
 \end{split}\]</span>
