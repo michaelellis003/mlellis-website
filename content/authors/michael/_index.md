@@ -36,4 +36,4 @@ Generally, I am interested in using probability theory and statistical or machin
 
 You can email at [michael@mlellis.com](mailto:michael@mlellis.com) 
 
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}:
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Michael_Ellis_Resume.pdf" "newtab" >}}resume{{< /staticref >}}
